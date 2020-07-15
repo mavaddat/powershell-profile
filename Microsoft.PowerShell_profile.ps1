@@ -4,7 +4,7 @@
 # Set-ExecutionPolicy unrestricted
 
 # So we can launch pwsh in subshells if we need
-Add-PathVariable "${env:ProgramFiles}\PowerShell\6-preview"
+Add-PathVariable (Resolve-Path "${env:ProgramFiles}\PowerShell\*-Preview")
 
 $profileDir = $PSScriptRoot;
 
@@ -15,37 +15,37 @@ function Test-Administrator  {
 }
 
 # Edit whole dir, so we can edit included files etc
-function edit-powershell-profile {
+function Edit-Powershell-Profile {
 	edit $profileDir
 }
 
-function update-powershell-profile {
+function Update-Powershell-Profile {
 	& $profile
 }
 
 # https://blogs.technet.microsoft.com/heyscriptingguy/2012/12/30/powertip-change-the-powershell-console-title
-function set-title([string]$newtitle) {
+function Set-Title([string]$newtitle) {
 	$host.ui.RawUI.WindowTitle = $newtitle + ' – ' + $host.ui.RawUI.WindowTitle
 }
 
 # From http://stackoverflow.com/questions/7330187/how-to-find-the-windows-version-from-the-powershell-command-line
-function get-windows-build {
+function Get-Windows-Build {
 	[Environment]::OSVersion
 }
 
-function disable-windows-search {
+<# function Disable-Windows-Search {
 	Set-Service wsearch -StartupType disabled
-	stop-service wsearch
-}
+	stop-Service wsearch
+} #>
 
 # http://mohundro.com/blog/2009/03/31/quickly-extract-files-with-powershell/
 # and https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz-in-a-single-step-on-windows-with-7zip
-# function expand-archive([string]$file, [string]$outputDir = '') {
+# function Expand-Archive([string]$file, [string]$outputDir = '') {
 # 	if (-not (Test-Path $file)) {
 # 		$file = Resolve-Path $file
 # 	}
 
-# 	$baseName = get-childitem $file | select-object -ExpandProperty "BaseName"
+# 	$baseName = Get-Childitem $file | Select-Object -ExpandProperty "BaseName"
 
 # 	if ($outputDir -eq '') {
 # 		$outputDir = $baseName
@@ -59,7 +59,7 @@ function disable-windows-search {
 # 	if ( $secondExtension -eq '.tar' ) {
 # 		# This is a tarball
 # 		$outputDir = $secondBaseName
-# 		write-output "Output dir will be $outputDir"		
+# 		Write-Output "Output dir will be $outputDir"		
 # 		7z x $file -so | 7z x -aoa -si -ttar -o"$outputDir"
 # 		return
 # 	} 
@@ -67,27 +67,27 @@ function disable-windows-search {
 # 	7z x "-o$outputDir" $file	
 # }
 
-set-alias unzip expand-archive
+<# Set-Alias unzip Expand-Archive #>
 
-function get-path {
+function Get-Path {
 	($Env:Path).Split(";")
 }
 
 function Test-FileInSubPath([System.IO.DirectoryInfo]$Child, [System.IO.DirectoryInfo]$Parent) {
-	write-host $Child.FullName | select-object '*'
+	Write-Host $Child.FullName | Select-Object '*'
 	$Child.FullName.StartsWith($Parent.FullName)
 }
 
-function stree {
-	$SourceTreeFolder =  get-childitem ("${env:LOCALAPPDATA}" + "\SourceTree\app*") | Select-Object -first 1
+<# function stree {
+	$SourceTreeFolder =  Get-Childitem ("${env:LOCALAPPDATA}" + "\SourceTree\app*") | Select-Object -first 1
 	& $SourceTreeFolder/SourceTree.exe -f .
-}
+} #>
 
-function get-serial-number {
-  Get-CimInstance -ClassName Win32_Bios | select-object serialnumber
-}
+<# function Get-Serial-Number {
+  Get-CimInstance -ClassName Win32_Bios | Select-Object serialnumber
+} #>
 
-function get-process-for-port($port) {
+function Get-Process-For-Port($port) {
 	Get-Process -Id (Get-NetTCPConnection -LocalPort $port).OwningProcess
 }
 
@@ -96,8 +96,8 @@ foreach ( $includeFile in ("aws", "defaults", "openssl", "aws", "unix", "develop
 . "$profileDir\$includeFile.ps1"
 }
 
-set-location '~/Code'
+Set-Location "$env:USERPROFILE\Documents\GitHub"
 
-write-output 'Mike profile loaded.'
+Write-Output "$env:USERNAME profile loaded"
 
 
