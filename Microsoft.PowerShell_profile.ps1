@@ -1,4 +1,30 @@
-﻿# Note foreach can be a keyword or an alias to foreach-object
+﻿Function Add-PathVariable {
+	param (
+		[Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+		[String]$AddPath,
+		[String[]]
+		[Parameter(Position = 1, ValueFromRemainingArguments)]
+		$Remaining
+	)
+	if (Test-Path $AddPath) {
+		$regexAddPath = [regex]::Escape($AddPath)
+		$ArrPath = $env:Path -split ';' | Where-Object { $_ -notMatch 
+			"^$regexAddPath\\?" }
+		$env:Path = ($ArrPath + $AddPath) -join ';'
+	}
+ else {
+		if(Test-Path -Path ($BetterPath = Resolve-Path -Path $($AddPath+'*'))) {
+			Throw "'$AddPath' is not a valid path. Did you mean '$BetterPath'?"
+		}
+		
+	}
+	
+	if($null -ne $Remaining){
+		ForEach-Object -InputObject $Remaining -Process {Add-PathVariable($_)}
+	}
+}
+
+# Note foreach can be a keyword or an alias to foreach-object
 # https://stackoverflow.com/questions/29148462/difference-between-foreach-and-foreach-object-in-powershell
 
 # Set-ExecutionPolicy unrestricted
@@ -9,7 +35,7 @@ Add-PathVariable (Resolve-Path "${env:ProgramFiles}\PowerShell\*-Preview")
 $profileDir = $PSScriptRoot;
 
 # From https://serverfault.com/questions/95431/in-a-powershell-script-how-can-i-check-if-im-running-with-administrator-privil#97599
-function Test-Administrator  {  
+function Test-Administrator {  
 	$user = [Security.Principal.WindowsIdentity]::GetCurrent();
 	(New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)  
 }
@@ -40,32 +66,33 @@ function Get-Windows-Build {
 
 # http://mohundro.com/blog/2009/03/31/quickly-extract-files-with-powershell/
 # and https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz-in-a-single-step-on-windows-with-7zip
-# function Expand-Archive([string]$file, [string]$outputDir = '') {
-# 	if (-not (Test-Path $file)) {
-# 		$file = Resolve-Path $file
-# 	}
+<# function Expand-Archive([string]$file, [string]$outputDir = '') {
+	if (-not (Test-Path $file)) {
+		$file = Resolve-Path $file
+	}
 
-# 	$baseName = Get-Childitem $file | Select-Object -ExpandProperty "BaseName"
+	$baseName = Get-Childitem $file | Select-Object -ExpandProperty "BaseName"
 
-# 	if ($outputDir -eq '') {
-# 		$outputDir = $baseName
-# 	}
+	if ($outputDir -eq '') {
+		$outputDir = $baseName
+	}
 
-# 	# Check if there's a tar inside
-# 	# We use the .net method as this file (x.tar) doesn't exist!
-# 	$secondExtension = [System.IO.Path]::GetExtension($baseName)
-# 	$secondBaseName = [System.IO.Path]::GetFileNameWithoutExtension($baseName)
+	# Check if there's a tar inside
+	# We use the .net method as this file (x.tar) doesn't exist!
+	$secondExtension = [System.IO.Path]::GetExtension($baseName)
+	$secondBaseName = [System.IO.Path]::GetFileNameWithoutExtension($baseName)
 
-# 	if ( $secondExtension -eq '.tar' ) {
-# 		# This is a tarball
-# 		$outputDir = $secondBaseName
-# 		Write-Output "Output dir will be $outputDir"		
-# 		7z x $file -so | 7z x -aoa -si -ttar -o"$outputDir"
-# 		return
-# 	} 
-# 	# Just extract the file
-# 	7z x "-o$outputDir" $file	
-# }
+	if ( $secondExtension -eq '.tar' ) {
+		# This is a tarball
+		$outputDir = $secondBaseName
+		Write-Output "Output dir will be $outputDir"		
+		7z x $file -so | 7z x -aoa -si -ttar -o"$outputDir"
+		return
+	} 
+	# Just extract the file
+	7z x "-o$outputDir" $file	
+}
+#>
 
 <# Set-Alias unzip Expand-Archive #>
 
@@ -93,7 +120,7 @@ function Get-Process-For-Port($port) {
 
 foreach ( $includeFile in ("aws", "defaults", "openssl", "aws", "unix", "development", "node") ) {
 	Unblock-File $profileDir\$includeFile.ps1
-. "$profileDir\$includeFile.ps1"
+	. "$profileDir\$includeFile.ps1"
 }
 
 Set-Location "$env:USERPROFILE\Documents\GitHub"
