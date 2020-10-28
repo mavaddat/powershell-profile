@@ -2,7 +2,7 @@
 	param (
 		[Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
 		[String]$AddPath,
-		[String[]]
+		[String[]][AllowNull()]
 		[Parameter(Position = 1, ValueFromRemainingArguments)]
 		$Remaining
 	)
@@ -13,8 +13,11 @@
 		$env:Path = ($ArrPath + $AddPath) -join ';'
 	}
  else {
+	 	$throwMessage = "'$AddPath' is not a valid path."
 		if(Test-Path -Path ($BetterPath = Resolve-Path -Path $($AddPath+'*'))) {
-			Throw "'$AddPath' is not a valid path. Did you mean '$BetterPath'?"
+			Throw $throwMessage + "Did you mean '$BetterPath'?"
+		} else {
+			Throw $throwMessage
 		}
 		
 	}

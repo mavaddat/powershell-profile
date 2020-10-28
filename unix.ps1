@@ -1,6 +1,6 @@
 
 # Just a couple of things (sed, to interpret sed scripts) from http://unxutils.sourceforge.net/
-Add-PathVariable "${env:ProgramFiles}\UnxUtils"
+# Add-PathVariable "${env:ProgramFiles}\UnxUtils"
 
 # Note PSReadLine uses vi keybindings by default. If you want emacs enable:
 # Set-PSReadlineOption -EditMode Emacs
@@ -13,7 +13,7 @@ Set-PSReadlineKeyHandler -Key 'Escape,_' -Function YankLastArg
 Set-PSReadlineKeyHandler -Chord Tab -Function MenuComplete
 
 # For dig, host, etc.
-Add-PathVariable "${env:ProgramFiles}\ISC BIND 9\bin"
+# Add-PathVariable "${env:ProgramFiles}\ISC BIND 9\bin"
 
 # Should really be name=value like Unix version of export but not a big deal
 function export($name, $value) {
@@ -30,7 +30,7 @@ function pgrep($name) {
 
 # Like Unix touch, creates new files and updates time on old ones
 # PSCX has a touch, but it doesn't make empty files
-Remove-Alias touch
+if($null -ne (Get-Alias -Name touch -ErrorAction SilentlyContinue)) {Remove-Alias touch}
 function touch($file) {
 	if ( Test-Path $file ) {
 		Set-FileTime $file

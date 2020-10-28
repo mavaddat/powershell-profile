@@ -1,11 +1,11 @@
 # RethinkDB and Python (needed for the Python rethinkdb dump tool)
-Add-PathVariable "${env:ProgramFiles}\rethinkdb"
-Add-PathVariable "${env:ProgramFiles}\Python"
+# Add-PathVariable "${env:ProgramFiles}\rethinkdb"
+# Add-PathVariable "${env:ProgramFiles}\Python"
 # pip is in the scripts dir
-Add-PathVariable "${env:ProgramFiles}\Python\Scripts"
+# Add-PathVariable "${env:ProgramFiles}\Python\Scripts"
 
 # mongoDB
-Add-PathVariable 'C:\Program Files\MongoDB\Server\4.0\bin'
+# Add-PathVariable 'C:\Program Files\MongoDB\Server\4.0\bin'
 
 # git
 Add-PathVariable "${env:ProgramFiles}/git/bin"
@@ -14,12 +14,12 @@ Add-PathVariable "${env:ProgramFiles}/git/bin"
 Add-PathVariable "${env:ProgramFiles}\Git\bin"
 
 # vscode
-Add-PathVariable "${env:LOCALAPPDATA}\Programs\Microsoft VS Code\bin" 
+# Add-PathVariable "${env:LOCALAPPDATA}\Programs\Microsoft VS Code\bin" 
 
 # Python (also needed for the Python rethinkdb dump tool)
-Add-PathVariable "${env:ProgramFiles}\Python"
+# Add-PathVariable "${env:ProgramFiles}\Python"
 # pip is in the scripts dir
-Add-PathVariable "${env:ProgramFiles}\Python\Scripts"
+# Add-PathVariable "${env:ProgramFiles}\Python\Scripts"
 
 # Tab completion for git (also modified prompt, which I dislike, so disabled)
 # Install-Module posh-git
@@ -43,24 +43,24 @@ function get-git-untracked {
 
 # For git rebasing
 # --wait required, see https://github.com/Microsoft/vscode/issues/23219 
-$env:EDITOR = 'code --wait'
+$env:EDITOR = 'code-insiders.cmd --wait'
 
 # Kinda like $EDITOR in nix
 # TODO: check out edit-file from PSCX
 # You may prefer eg 'subl' or 'code' or whatever else
 function edit {
-	& "code" -g @args
+	& "code-insiders.cmd" -g @args
 }
 
-function fork {
+<# function fork {
 	# Fork requires an absolute path https://github.com/ForkIssues/TrackerWin/issues/416#issuecomment-527067604
 	$absolutePath = resolve-path .
 	& ${env:LOCALAPPDATA}\Fork\Fork.exe $absolutePath
-}
+} #>
 
 # I used to run Sublime so occasionally my fingers type it
-function subl {
+<# function subl {
 	# 	& "$env:ProgramFiles\Sublime Text 3\subl.exe" @args
 	write-output "Type 'edit' instead"
 }
-
+ #>

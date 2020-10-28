@@ -1,7 +1,7 @@
-Add-PathVariable "${env:ProgramFiles}\OpenSSL"
+Add-PathVariable $(Resolve-Path -Path "${env:ProgramFiles}\OpenSSL*\")
 
 # See https://stackoverflow.com/questions/14459078/unable-to-load-config-info-from-usr-local-ssl-openssl-cnf
-# $env:OPENSSL_CONF = "${env:ProgramFiles}\OpenSSL\openssl.cnf"
+ $env:OPENSSL_CONF = (Get-ChildItem -Filter openssl.cnf -Path $(Resolve-Path -Path "${env:ProgramFiles}\OpenSSL*\") -Recurse).FullName
 
 # $env:RANDFILE="${env:LOCALAPPDATA}\openssl.rnd"
 

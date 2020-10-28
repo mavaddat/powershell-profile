@@ -18,13 +18,40 @@ function explorer {
   explorer.exe .
 }
 
-function edge {
-  # Old Edge
-  # start microsoft-edge:
-  #
-  # New Chromioum Edge
-  & "${env:ProgramFiles(x86)}\Microsoft\Edge Dev\Application\msedge.exe"
+function Start-Edge {
+  [CmdletBinding(DefaultParameterSetName='Work')]
+  param ( 
+    [Parameter(Mandatory=$false, Position=0)]
+    [String]
+    $ProfilePath,
+    [Parameter(ParameterSetName='Work', Mandatory=$false)]
+    [switch]
+    $Work,
+    [Parameter(ParameterSetName='Personal', Mandatory=$false)]
+    [switch]
+    $Personal
+  )
+  
+  begin {
+    if($null -ne $ProfilePath -and (Test-Path -Path $ProfilePath)) {
+      $TargetProfile = $ProfilePath
+    } elseif ($Work){
+      $TargetProfile = "Default"
+    } elseif ($Personal) {
+      $TargetProfile = "Profile 2"
+    }
+  }
+  
+  process {
+    & "${env:ProgramFiles(x86)}\Microsoft\Edge Beta\Application\msedge.exe" --profile-directory="$TargetProfile"
+  }
+  
+  end {
+    
+  }
 }
+
+
 function settings {
   start-process ms-setttings:
 }
@@ -43,13 +70,7 @@ function limit-HomeDirectory($Path) {
 
 # Must be called 'prompt' to be used by pwsh 
 # https://github.com/gummesson/kapow/blob/master/themes/bashlet.ps1
-function prompt {
-  $realLASTEXITCODE = $LASTEXITCODE
-  Write-Host $(limit-HomeDirectory("$pwd")) -ForegroundColor Yellow -NoNewline
-  Write-Host " $" -NoNewline
-  $global:LASTEXITCODE = $realLASTEXITCODE
-  Return " "
-}
+
 
 # Make $lastObject save the last object output
 # From http://get-powershell.com/post/2008/06/25/Stuffing-the-output-of-the-last-command-into-an-automatic-variable.aspx

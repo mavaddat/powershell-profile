@@ -1,2 +1,2 @@
 $env:AWS_PROFILE='default'
-$env:AWS_REGION='us-west-2'
+$env:AWS_REGION='ca-central-1'
