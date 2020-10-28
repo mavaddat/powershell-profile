@@ -1,24 +1,24 @@
 Add-PathVariable "${env:ProgramFiles}\nodejs"
 
-# Add relative node_modules\.bin to PATH - this allows us to easily use local bin files and less things installed globally
-Add-PathVariable '.\node_modules\.bin'
+# Add relative node_modules\.bin to PATH - this allows us to easily use local bin files and fewer things installed globally
+# Add-PathVariable '.\node_modules\.bin'
 
 # yarn bin folder
-Add-PathVariable "${env:ProgramFiles(x86)}\Yarn\bin"
+Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"
 
 # npm global bin folder
-Add-PathVariable ${env:APPDATA}\npm
+Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\npm\bin"
 
 # Python is used to install binary node modules
-Add-PathVariable $HOME\.windows-build-tools\python27
+# Add-PathVariable $HOME\.windows-build-tools\python27
 
 
-# $env:NODE_PATH = "${env:APPDATA}\npm"
+$env:NODE_PATH = "${env:ProgramFiles}\nodejs\node_modules\npm\bin"
 
 # We use a locally installed mocha rather than a global one
 # Scope private do we don't call mocha recursively (just in case there is one in path)
 function Private:mocha() {
-	& node ..\..\node_modules\mocha\bin\mocha --ui tdd --bail --exit $args
+	& node "${env:ProgramFiles}\nodejs\node_modules\mocha\bin\mocha" --ui tdd --bail --exit $args
 }
 
 # Scope private do we don't call yarn recursively!
