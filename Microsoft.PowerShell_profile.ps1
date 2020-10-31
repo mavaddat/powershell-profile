@@ -62,6 +62,13 @@ function Get-Windows-Build {
 	[Environment]::OSVersion
 }
 
+function Get-WifiPassword {
+	# Get current Wifi SSID
+	$ssid = $(netsh wlan show interfaces | Select-String -Pattern ".*Profile\s+:\s*(.*?)(?: \d+)?\s*$").Matches.Groups[1].Value
+	# Get Wifi key and set it to clipboard
+	$( &netsh.exe @("wlan", "show", "profile", "$ssid", "key=clear") | Select-String -Pattern ".*?key content\s+:\s*(.*)$").Matches.Groups[1].Value | Set-Clipboard
+}
+
 <# function Disable-Windows-Search {
 	Set-Service wsearch -StartupType disabled
 	stop-Service wsearch
