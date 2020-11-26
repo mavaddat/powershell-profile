@@ -14,10 +14,10 @@
 	}
  else {
 	 	$throwMessage = "'$AddPath' is not a valid path."
-		if(Test-Path -Path ($BetterPath = Resolve-Path -Path $($AddPath+'*'))) {
-			Throw $throwMessage + "Did you mean '$BetterPath'?"
+		if(Test-Path -Path ($BetterPath = Resolve-Path -Path (Join-Path $AddPath '*'))) {
+			Write-Error -Category ObjectNotFound -Message ($throwMessage + "`nDid you mean '$BetterPath'?")
 		} else {
-			Throw $throwMessage
+			Write-Error -Category ObjectNotFound -Message $throwMessage
 		}
 		
 	}
