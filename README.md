@@ -13,7 +13,7 @@
 - Useful commands for crypto, including converting between different crypto file types, checking if private keys and certs match, etc. See [openssl.ps1](openssl.ps1)
 - Config files for [Windows Terminal](profiles.json), [Terminus](terminus-settings.yaml), and other modern Windows terminals.
 
-The profile code itself contains useful implementations of common patterns- eg, installing packages, reading the registry, interacting with files and processes. **Learning the things required to make a profile you're happy with is a great way to get comfortable with Powershell.** 
+The profile code itself contains useful implementations of common patterns- eg, installing packages, reading the registry, interacting with files and processes. **Learning the things required to make a profile you're happy with is a great way to get comfortable with Powershell.**
 
 The details below are minimal, but the names of most commands make things fairly obvious.
 
@@ -41,9 +41,10 @@ Get the [Powershell Community Extensions](https://github.com/Pscx/Pscx). Run:
 
 ```powershell
  Install-Module Pscx -Scope CurrentUser
- 
+
 ```
-AllowClobber is needed due to [this bug](https://github.com/Pscx/Pscx/issues/15) 
+
+AllowClobber is needed due to [this bug](https://github.com/Pscx/Pscx/issues/15)
 
 ### For 'Remove-ItemSafely'- ie, trashing files from the command line
 
@@ -66,25 +67,26 @@ The terminals below all support:
 
 ....and all the usual things you expect from any decent terminal emulator. I use **Windows Terminal**, which is in Preview right now, but usable as a day to day terminal. **Fluent Terminal** also works great out of the box.
 
-<img src="misc/windows-terminal.png"/>
+![Windows Terminal](misc/windows-terminal.png)
 
 - [**Microsoft's official Windows Terminal**](https://www.microsoft.com/en-us/p/windows-terminal-preview/9n0dx20hk701). Open the Settings file, enable `copyOnSelect` and change `"commandline": "C:\\Program Files\\PowerShell\\6\\pwsh.exe -nologo",`- the `nologo` makes Powershell skip some boring startup messages.
-- [**FluentTerminal**](https://github.com/felixse/FluentTerminal) is a native Windows 10 terminal that feels as if Microsoft had written it. It requires minimal configuration (just to add Powershell 6 to the profiles), has all the features you'd expect, and is fast. 
-- [**Terminus**](https://eugeny.github.io/terminus/) works great. Tweaking colors, keyboard shortcuts etc is easy via the menus, and [my settings file is included](terminus-settings.yaml) if you just want my config. 
+- [**FluentTerminal**](https://github.com/felixse/FluentTerminal) is a native Windows 10 terminal that feels as if Microsoft had written it. It requires minimal configuration (just to add Powershell 6 to the profiles), has all the features you'd expect, and is fast.
+- [**Terminus**](https://eugeny.github.io/terminus/) works great. Tweaking colors, keyboard shortcuts etc is easy via the menus, and [my settings file is included](terminus-settings.yaml) if you just want my config.
 - [**Hyper**](https://hyper.is/) Install Hyper 3 and modify the config to set:
- ```
+
+ ```sh
  shell: "C:\\Program Files\\PowerShell\\6\\pwsh.exe",
  ```
- 
- and 
- 
- ```
+
+ and
+
+ ```sh
  shellArgs: [],
  ```
- 
+
  To work around [issues with arrow keys](https://github.com/zeit/hyper/issues/2873) you'll also need to click **Edit**, **Preferences**, find **keymaps**, and replace the existing entries with one below:
 
-```
+```json
   keymaps: {
     // Example
     // 'window:devtools': 'cmd+alt+o',
@@ -99,25 +101,24 @@ The terminals below all support:
     "editor:moveNextWord": ""
   }
  ```
- 
+
 #### Minimal terminals
 
-The following apps are console window only- they don't provide tabs, graphical config tools, etc. You can add  an app like [Groupy](https://www.stardock.com/products/groupy/) to them to make a tabbed terminal, but they require more setup than just using Terminus. 
+The following apps are console window only- they don't provide tabs, graphical config tools, etc. You can add  an app like [Groupy](https://www.stardock.com/products/groupy/) to them to make a tabbed terminal, but they require more setup than just using Terminus.
 
 - The **inbuilt Powershell 6 terminal**
 - [**Alacritty**](https://github.com/jwilm/alacritty) is fast. You'll also need to have the following in `AppData\Roaming\alacritty\alacritty.yml`
- 
+
 ```yaml
     shell:
         program: 'C:\Program Files\PowerShell\6\pwsh.exe'
-   
+
     enable_experimental_conpty_backend: true
-```    
+```
 
 #### Terminal apps that don't yet work on Windows
 
 The apps below all plan on having Windows support in future, but don't yet properly work at the time of writing. There are links to the tracking bugs below.
-
 
 - [**Upterm**](https://github.com/railsware/upterm) [doesn't yet work on Windows](https://github.com/railsware/upterm/issues/800
 )
@@ -130,10 +131,8 @@ The apps below all plan on having Windows support in future, but don't yet prope
 
 These have the 'everything at once' UI design of older Windows operating systems.
 
-- [**ConEmu**](https://conemu.github.io/) works, but has some contrast issues which make it hard to see the open tab, and is hampered by its author's desire for Windows XP support. 
+- [**ConEmu**](https://conemu.github.io/) works, but has some contrast issues which make it hard to see the open tab, and is hampered by its author's desire for Windows XP support.
 - [**ConsoleZ**](https://github.com/cbucher/console) is an updated version of the now-unmaintained Console2.
-
-
 
 ### To pick a color scheme / theme
 
@@ -141,7 +140,7 @@ Browse [iterm2colorschemes.com](https://iterm2colorschemes.com/) and download th
 
 Terminus has it's own color schemes, just open **Settings** > **Appearance** > **Color Scheme** and pick one (or use my config file).
 
-[ColorTool](https://blogs.msdn.microsoft.com/commandline/2017/08/11/introducing-the-windows-console-colortool/) also supports importing the well know `.itermcolors` format. [Download ColorTool from Microsoft's GitHub](https://github.com/Microsoft/console/tree/master/tools/ColorTool). You can edit an `.itermcolors` file using [terminal.sexy](https://terminal.sexy). 
+[ColorTool](https://blogs.msdn.microsoft.com/commandline/2017/08/11/introducing-the-windows-console-colortool/) also supports importing the well know `.itermcolors` format. [Download ColorTool from Microsoft's GitHub](https://github.com/Microsoft/console/tree/master/tools/ColorTool). You can edit an `.itermcolors` file using [terminal.sexy](https://terminal.sexy).
 
 Run:
 
@@ -151,7 +150,7 @@ Run:
 
 ### For OpenSSH
 
-OpenSSH now comes with Windows. **Settings** -> **Manage Optional Features** -> **OpenSSH client**. 
+OpenSSH now comes with Windows. **Settings** -> **Manage Optional Features** -> **OpenSSH client**.
 
 ### For a nice prompt
 
@@ -159,11 +158,11 @@ By default `$prompt` is a minimal, bash-style prompt with a truncated path. If y
 
 ### For OpenSSL (if you need it)
 
-Personally I use OpenSSL for viewing private keys, pubkeys, certificates, and other TLS/PKI work. Unless you do the same you probably don't need OpenSSL. 
+Personally I use OpenSSL for viewing private keys, pubkeys, certificates, and other TLS/PKI work. Unless you do the same you probably don't need OpenSSL.
 
 The Windows version of OpenSSH uses Windows CryptoAPI rather than OpenSSL, so if you want to add OpenSSL, you'll have to install it.
 
-Use [this up to date, secure Windows OpenSSL build](https://indy.fulgan.com/SSL/). 
+Use [this up to date, secure Windows OpenSSL build](https://indy.fulgan.com/SSL/).
 
 ### For host, dig and other DNS tools
 
@@ -187,7 +186,7 @@ Start [Powershell 5](https://github.com/felixrieseberg/windows-build-tools/issue
 
 ## Minimum Powershell concepts to learn before you rant about how much you hate Powershell
 
-These come with powershell. If you don't know them you're the equivalent of someone who doesn't know `grep` ranting about how "Unix is like DOS". That might be painful to hear but it's true. 
+These come with powershell. If you don't know them you're the equivalent of someone who doesn't know `grep` ranting about how "Unix is like DOS". That might be painful to hear but it's true.
 
 `select` (also called `select-object`)- select the fields you want on an object
 
@@ -199,9 +198,9 @@ These come with powershell. If you don't know them you're the equivalent of some
 
 `get-help some-command -examples`- every command has examples.
 
-## How does Powershell actually differ from bash, day-to-day?
+## How does Powershell actually differ from bash, day-to-day❓
 
-Here's a real comparison: [a bash script used to find a compromised node module a little while ago](https://twitter.com/feross/status/1017481175005257728): 
+Here's a real comparison: [a bash script used to find a compromised node module a little while ago](https://twitter.com/feross/status/1017481175005257728):
 
 ```bash
  find . -type d -name "eslint-scope" -print0 | xargs -n 1 -0 -I % sh -c "(cat %/package.json | npx json version) && echo '(at %)'"
@@ -210,11 +209,11 @@ Here's a real comparison: [a bash script used to find a compromised node module 
 Here's [a Powershell version](https://twitter.com/mikemaccana/status/1017774238344900608). This is written using Unix aliases as that's what folk are familiar with, though it's generally considered better to use the full names in your scripts:
 
 ```powershell
- $results = @{} 
- ls -recurse -filter "eslint-scope" | foreach { 
-  $file = "${PSItem}\package.json" 
-  $version = cat $file | convertfrom-json | select -ExpandProperty version 
-  $results.Add($file,$version) } 
+ $results = @{}
+ ls -recurse -filter "eslint-scope" | foreach {
+  $file = "${PSItem}\package.json"
+  $version = cat $file | convertfrom-json | select -ExpandProperty version
+  $results.Add($file,$version) }
  echo $results | format-list
 ```
 
@@ -227,7 +226,7 @@ You might prefer one or the other, but the important difference:
 
 ### Why Windows filesystem is slow
 
-Filesystem access under Windows is undoubtedly slower than ext3/4 for most tasks. See https://github.com/Microsoft/WSL/issues/873#issuecomment-425272829 for more details about why and some performance hints to speed things up. There's also [plans to improve things in future](https://twitter.com/shanselman/status/1123467067880038400).
+Filesystem access under Windows is undoubtedly slower than ext3/4 for most tasks. See <https://github.com/Microsoft/WSL/issues/873#issuecomment-425272829> for more details about why and some performance hints to speed things up. There's also [plans to improve things in future](https://twitter.com/shanselman/status/1123467067880038400).
 
 ## Included commands
 
@@ -253,9 +252,9 @@ Filesystem access under Windows is undoubtedly slower than ext3/4 for most tasks
 
 `reboot`
 
-`get-windows-build` 
+`get-windows-build`
 
-`disable-windows-search`- Windows Search Indexer doesn't handle filesystems with lots of small files- the 'Windows Search Indexer' process will kick in when you're working, and make interactive so slow you'll be waiting for your keyboard strokes to appear on screen. I've [discussed this with Rich Tuner from Microsoft](https://twitter.com/felixfbecker/status/1047745804444815360) who says the search team are working on fixing this, but right now I suggest you disable the indexer. 
+`disable-windows-search`- Windows Search Indexer doesn't handle filesystems with lots of small files- the 'Windows Search Indexer' process will kick in when you're working, and make interactive so slow you'll be waiting for your keyboard strokes to appear on screen. I've [discussed this with Rich Tuner from Microsoft](https://twitter.com/felixfbecker/status/1047745804444815360) who says the search team are working on fixing this, but right now I suggest you disable the indexer.
 
 You can still search for files without the Indexer, it'll just not using the indexes, so take a little longer. You can also just use `find-file` included here.
 
@@ -301,7 +300,6 @@ You can still search for files without the Indexer, it'll just not using the ind
 
 ## Powershell stuff
 
-
 `prompt`- a nice Unix-like prompt with ~ style truncation for the home directory
 
 `edit-powershell-profile`
@@ -325,7 +323,6 @@ You can still search for files without the Indexer, it'll just not using the ind
 `sourcetree`- SourceTree
 
 ### Crypto
-
 
 `read-certificate`
 
