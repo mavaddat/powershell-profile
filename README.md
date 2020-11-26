@@ -1,6 +1,8 @@
 <img src="icons/powershell.svg" width="96px" height="96px" align="left">
 
-# Mav's Powershell profile: how to set up a terminal in Windows if you've been using *nix for 20 years
+# Mav's Powershell profile
+
+##### How to set up a terminal in Windows to pretend you've been using *nix for 20 years
 
 👋🏽 I've been using Powershell. I'm a Windows person.
 
