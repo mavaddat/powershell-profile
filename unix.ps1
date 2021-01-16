@@ -105,8 +105,9 @@ function show-links($dir){
 }
 
 function which($name) {
-	Get-Command $name | Select-Object -ExpandProperty Definition
+	Get-Command $name -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Definition -ErrorAction Ignore
 }
+
 
 function cut(){
 	foreach ($part in $input) {
