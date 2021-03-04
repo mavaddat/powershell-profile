@@ -199,7 +199,7 @@ function Get-FileTail
         [Alias("Lines")]
         [int32]$InitialLines=0
     )
-    # Using cat instead of Get-Content to further make this 'Linuxy'
+    
     if ($InitialLines -eq -1) {
         Write-Host "Starting monitoring of $File with all existing content to be loaded first." -ForegroundColor Yellow
     }else{
@@ -209,17 +209,13 @@ function Get-FileTail
     Write-Host ""
     Write-Host ""
     try {
-        cat $File -Wait -Tail $InitialLines
+        Get-Content $File -Wait -Tail $InitialLines
     }
     catch {
-        Write-Host ""
-        Write-Host ""
-        Write-Host "The process was interrupted:" -ForegroundColor Red -BackgroundColor Black
+        Write-Host "`n`nThe process was interrupted:" -ForegroundColor Red -BackgroundColor Black
         $_.Exception
     }finally{
-        Write-Host ""
-        Write-Host ""
-        Write-Host "Finished tailing $File" -ForegroundColor Yellow
+        Write-Host "`n`nFinished tailing $File" -ForegroundColor Yellow
     }
 }
 New-Alias -Name Tail -Value Get-FileTail -Scope Global

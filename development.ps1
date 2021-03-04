@@ -25,7 +25,7 @@ Add-PathVariable "${env:ProgramFiles}\Git\bin"
 # Install-Module posh-git
 
 # Load posh-git example profile
-# . 'C:\Users\mike\Documents\WindowsPowerShell\Modules\posh-git\profile.example.ps1'
+# . "${env:USERPROFILE}\Documents\WindowsPowerShell\Modules\posh-git\profile.example.ps1"
 
 function gg {
 	# Replace 'file:linenumber:content' with 'file:linenumber content'
@@ -33,23 +33,23 @@ function gg {
 	& git grep -n -i @args | foreach-object { $_ -replace '(\d+):','$1 ' }  
 }
 
-function get-git-ignored {
+function Get-Git-Ignored {
 	git ls-files . --ignored --exclude-standard --others
 }
 
-function get-git-untracked {
+function Get-Git-Untracked {
 	git ls-files . --exclude-standard --others
 }
 
 # For git rebasing
 # --wait required, see https://github.com/Microsoft/vscode/issues/23219 
-$env:EDITOR = 'code-insiders.cmd --wait'
+$env:EDITOR = (Get-Command code*.cmd).ToString()+' --wait'
 
 # Kinda like $EDITOR in nix
 # TODO: check out edit-file from PSCX
 # You may prefer eg 'subl' or 'code' or whatever else
 function edit {
-	& "code-insiders.cmd" -g @args
+	&(Get-Command code*.cmd) -g @args
 }
 
 <# function fork {

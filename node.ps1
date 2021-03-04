@@ -4,7 +4,31 @@ Add-PathVariable "${env:ProgramFiles}\nodejs"
 # Add-PathVariable '.\node_modules\.bin'
 
 # yarn bin folder
-Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"
+if(Test-Path "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"){
+	Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"
+}
+elseif(Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContinue) {
+	Write-Host "Installing nodejs..."
+	Start-ThreadJob -ScriptBlock {
+		$nodejsVer = [version]::new((nvm list | Select-String "(?<=\*\s*)([\d\.]{3,})").Matches.Groups[1].Value)
+		$nodejsAvailable = $((nvm list available) -split '\|' | Select-String -Pattern "([\d\.]{3,})" -AllMatches).Matches.Groups.ForEach({[version]::new($_)})
+		$nodejsLatest = $nodejsAvailable | Select-First -First 1
+		if($nodejsLatest -ne $nodejsVer){
+			# install latest
+			nvm install latest
+			nvm use "$($nodejsLatest.ToString())"
+		}
+		Start-ThreadJob -ScriptBlock {
+			#remove old versions
+			nvm list | ForEach-Object {
+			if($_ -notmatch '\*') {
+					nvm uninstall $_
+				}
+			}}
+		npm install yarn -g
+	}
+	
+}
 
 # npm global bin folder
 Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\npm\bin"
