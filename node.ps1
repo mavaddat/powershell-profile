@@ -4,16 +4,16 @@ Add-PathVariable "${env:ProgramFiles}\nodejs"
 # Add-PathVariable '.\node_modules\.bin'
 
 $availNodeVers = New-Object -TypeName System.Collections.ArrayList
-$verPattern = [regex]::new("(\d+\.\d+\.\d+)")
+$verPattern = [regex]::new("(?:\d+\.?){3}")
 $currNodeVer = New-Object -TypeName version -ArgumentList @((nvm list | Select-String $verPattern).Matches.Value)
 
-nvm list available  | ForEach-Object{ (Select-String -InputObject $_ -Pattern $verPattern -AllMatches).Matches | ForEach-Object{ $ver = New-Object -TypeName version; if ([version]::TryParse($_.Value, [ref]$ver)) {$availNodeVers.Add($ver) | Out-Null }  } }
+nvm list available  | ForEach-Object { (Select-String -InputObject $_ -Pattern $verPattern -AllMatches).Matches | ForEach-Object { $ver = New-Object -TypeName version; if ([version]::TryParse($_.Value, [ref]$ver)) { $availNodeVers.Add($ver) | Out-Null } } }
 
 $availNodeVers.Sort() | Out-Null
 
-$newerAvail = ($availNodeVers | ForEach-Object -Begin {$newerAvail = $false} -Process {if($newerAvail){return} $newerAvail = $newerAvail -or ($currNodeVer -lt $_)} -End {$newerAvail})
+$newerAvail = ($availNodeVers | ForEach-Object -Begin { $newerAvail = $false } -Process { if ($newerAvail) { return } $newerAvail = $newerAvail -or ($currNodeVer -lt $_) } -End { $newerAvail })
 
-if($newerAvail){
+if ($newerAvail) {
 	Write-Host "Installing nodejs..."
 	Start-ThreadJob -ScriptBlock {
 		nvm install latest
@@ -23,10 +23,10 @@ if($newerAvail){
 }
 
 # yarn bin folder
-if(Test-Path "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"){
+if (Test-Path "${env:ProgramFiles}\nodejs\node_modules\yarn\bin") {
 	Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"
 }
-elseif(Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContinue) {
+elseif (Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContinue) {
 	Write-Host "Installing yarn..."
 	Start-ThreadJob -ScriptBlock {
 		npm install yarn -g
