@@ -2,9 +2,9 @@
 
 # Mav's Powershell profile
 
-##### How to set up a terminal in Windows to pretend you've been using *nix for 20 years
+##### How to set up a terminal in Windows
 
-👋🏽 I've been using Powershell. I'm a Windows person.
+👋🏽 I use Powershell. I'm a person.
 
 **If you come from a Linux or Unix background, and want to use Powershell properly, this is the right place.**
 
