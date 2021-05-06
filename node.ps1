@@ -11,12 +11,15 @@ nvm list available  | ForEach-Object{ (Select-String -InputObject $_ -Pattern $v
 
 $availNodeVers.Sort() | Out-Null
 
-$newerAvail = ($availNodeVers | ForEach-Object -Begin {$newerAvail = $false} -Process {if($newerAvail){return} $newerAvail = $newerAvail -or ($ver -lt $_)} -End {$newerAvail})
+$newerAvail = ($availNodeVers | ForEach-Object -Begin {$newerAvail = $false} -Process {if($newerAvail){return} $newerAvail = $newerAvail -or ($currNodeVer -lt $_)} -End {$newerAvail})
 
 if($newerAvail){
-	nvm install latest
-	nvm use $availNodeVers[-1]
-	nvm uninstall $currNodeVer
+	Write-Host "Installing nodejs..."
+	Start-ThreadJob -ScriptBlock {
+		nvm install latest
+		nvm use $availNodeVers[-1]
+		nvm uninstall $currNodeVer
+	}
 }
 
 # yarn bin folder
@@ -24,23 +27,8 @@ if(Test-Path "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"){
 	Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"
 }
 elseif(Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContinue) {
-	Write-Host "Installing nodejs..."
+	Write-Host "Installing yarn..."
 	Start-ThreadJob -ScriptBlock {
-		$nodejsVer = [version]::new((nvm list | Select-String "(?<=\*\s*)([\d\.]{3,})").Matches.Groups[1].Value)
-		$nodejsAvailable = $((nvm list available) -split '\|' | Select-String -Pattern "([\d\.]{3,})" -AllMatches).Matches.Groups.ForEach({[version]::new($_)})
-		$nodejsLatest = $nodejsAvailable | Select-First -First 1
-		if($nodejsLatest -ne $nodejsVer){
-			# install latest
-			nvm install latest
-			nvm use "$($nodejsLatest.ToString())"
-		}
-		Start-ThreadJob -ScriptBlock {
-			#remove old versions
-			nvm list | ForEach-Object {
-			if($_ -notmatch '\*') {
-					nvm uninstall $_
-				}
-			}}
 		npm install yarn -g
 	}
 	
