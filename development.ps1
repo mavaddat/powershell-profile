@@ -48,7 +48,7 @@ $env:EDITOR = (Get-Command code*.cmd).ToString()+' --wait'
 # Kinda like $EDITOR in nix
 # TODO: check out edit-file from PSCX
 # You may prefer eg 'subl' or 'code' or whatever else
-function edit {
+function Edit {
 	&(Get-Command code*.cmd) -g @args
 }
 
