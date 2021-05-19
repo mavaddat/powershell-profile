@@ -1,4 +1,4 @@
-Add-PathVariable "${env:ProgramFiles}\nodejs"
+Add-PathVariable "$nodePath"
 
 # Add relative node_modules\.bin to PATH - this allows us to easily use local bin files and fewer things installed globally
 # Add-PathVariable '.\node_modules\.bin'
@@ -29,7 +29,9 @@ $availNodeVers.Sort() | Out-Null
 
 $currNodeVer = $currNodeVerJob | Receive-Job -Wait -AutoRemoveJob
 
-$newerAvail = ($availNodeVers | ForEach-Object -Begin { $newerAvail = $false } -Process { if ($newerAvail) { return } $newerAvail = $newerAvail -or ($currNodeVer -lt $_) } -End { $newerAvail })
+$newerAvail = ($availNodeVers | ForEach-Object -Begin { $newerAvail = $false } -Process {
+	 if ($newerAvail) { return } $newerAvail = $newerAvail -or ($currNodeVer -lt $_) 
+	} -End { $newerAvail })
 
 if ($newerAvail) {
 	Write-Host "Installing nodejs..."
@@ -41,31 +43,33 @@ if ($newerAvail) {
 	} -ArgumentList $availNodeVers[-1], $currNodeVer
 }
 
+$nodePath = Resolve-Path (Join-Path "$("$(nvm root)" -replace ".*([A-Z]:\\)",'$1')" 'v*[0-9]*')
+
 # yarn bin folder
-if (Test-Path "${env:ProgramFiles}\nodejs\node_modules\yarn\bin") {
-	Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\yarn\bin"
+if (Test-Path "$nodePath\node_modules\yarn\bin") {
+	Add-PathVariable "$nodePath\node_modules\yarn\bin"
 }
 elseif (Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContinue) {
 	Write-Host "Installing yarn..."
 	Start-ThreadJob -ScriptBlock {
-		npm install yarn -g
+		&"$nodePath\npm" install yarn -g
 	}
 	
 }
 
 # npm global bin folder
-Add-PathVariable "${env:ProgramFiles}\nodejs\node_modules\npm\bin"
+Add-PathVariable "$nodePath\node_modules\npm\bin"
 
 # Python is used to install binary node modules
 # Add-PathVariable $HOME\.windows-build-tools\python27
 
 
-$env:NODE_PATH = "${env:ProgramFiles}\nodejs\node_modules\npm\bin"
+$env:NODE_PATH = "$nodePath\node_modules\npm\bin"
 
 # We use a locally installed mocha rather than a global one
 # Scope private do we don't call mocha recursively (just in case there is one in path)
 function Private:mocha() {
-	& node "${env:ProgramFiles}\nodejs\node_modules\mocha\bin\mocha" --ui tdd --bail --exit $args
+	& node "$nodePath\node_modules\mocha\bin\mocha" --ui tdd --bail --exit $args
 }
 
 # Scope private do we don't call yarn recursively!
