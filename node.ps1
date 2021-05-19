@@ -33,11 +33,12 @@ $newerAvail = ($availNodeVers | ForEach-Object -Begin { $newerAvail = $false } -
 
 if ($newerAvail) {
 	Write-Host "Installing nodejs..."
-	Start-ThreadJob -ScriptBlock {
+	$installNodeJob = Start-ThreadJob -ScriptBlock {
+		param($latestNodeVer,$currNodeVer)
 		nvm install latest
-		nvm use $availNodeVers[-1]
+		nvm use $latestNodeVer
 		nvm uninstall $currNodeVer
-	}
+	} -ArgumentList $availNodeVers[-1], $currNodeVer
 }
 
 # yarn bin folder
@@ -84,3 +85,5 @@ function Private:yarn() {
 	}
 	& yarn $modifiedArgs
 }
+
+Receive-Job -Job $installNodeJob -Wait -AutoRemoveJob
