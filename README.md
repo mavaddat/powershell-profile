@@ -1,10 +1,10 @@
-<img src="icons/powershell.svg" width="96px" height="96px" align="left">
+<img src="./icons/powershell.svg" width="96px" height="96px" align="left">
 
 # Mav's Powershell profile
 
-##### How to set up a terminal in Windows
+👋🏽 I use Powershell. This is my repository for holding my PowerShell profile in a restorable fashion so I don't have to re-write it from memory every time I freshly re-install Windows.
 
-👋🏽 I use Powershell. I'm a person.
+## How to set up a terminal in Windows
 
 **If you come from a Linux or Unix background, and want to use Powershell properly, this is the right place.**
 

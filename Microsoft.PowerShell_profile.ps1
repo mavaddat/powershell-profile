@@ -19,7 +19,6 @@
 		} else {
 			Write-Error -Category ObjectNotFound -Message $throwMessage
 		}
-		
 	}
 	
 	if($null -ne $Remaining){
@@ -193,14 +192,14 @@ function Get-Properties($Object, $MaxLevels="5", $PathName = "`$_", $Level=0)
                     $type = ($obj.GetType()).ToString()
 
                     # Only recurse if it's not of a type in our list
-                    if (!($typesToExclude.Contains($type) ) )
+                    if (!($typesToExclude.Contains($type)))
                     {
 
                         #Path to property
                         $childPathName = "$PathName.$propName"
 
                         # Make sure it's not null, then recurse, incrementing $Level                        
-                        if ($obj -ne $null) 
+                        if ($null -ne $obj)
                         {
                             Get-Properties -Object $obj -PathName $childPathName -Level ($Level + 1) -MaxLevels $MaxLevels }
                         }
@@ -223,5 +222,3 @@ foreach ( $includeFile in ("aws", "defaults", "openssl", "aws", "unix", "develop
 Set-Location "$env:USERPROFILE\Documents\GitHub"
 
 Write-Output "$env:USERNAME profile loaded"
-
-
