@@ -2,8 +2,6 @@ $nodePath = Resolve-Path (Join-Path "$("$(nvm root)" -replace ".*([A-Z]:\\)",'$1
 if (Test-Path -Path $nodePath) {
 	Add-PathVariable "$nodePath"
 }
-# Add relative node_modules\.bin to PATH - this allows us to easily use local bin files and fewer things installed globally
-# Add-PathVariable '.\node_modules\.bin'
 
 $availNodeVers = New-Object -TypeName System.Collections.ArrayList
 $verPattern = [regex]::new("(?:\d+\.?){3}")

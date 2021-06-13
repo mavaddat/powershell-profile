@@ -2,11 +2,11 @@
 
 # Mav's Powershell profile
 
-👋🏽 I use Powershell. This is my repository for holding my PowerShell profile in a restorable fashion so I don't have to re-write it from memory every time I freshly re-install Windows.
+👋🏽 I use Powershell. My PowerShell profile has some useful bits that I want restorable (after re-formatting my HD), so I don't have to re-write the entire script from memory when I freshly re-install Windows.
 
 ## How to set up a terminal in Windows
 
-**If you come from a Linux or Unix background, and want to use Powershell properly, this is the right place.**
+This profile uses [mikemaccana/powershell-profile](../../mikemaccana/powershell-profile) as a baseline.
 
 - Better defaults, like UTF-8 output, long history, better tab completion, adding missing drives for registry hives, and a nice short prompt using the '~' character. See [defaults.ps1](defaults.ps1)
 - Implementations of popular Unix commands. See [unix.ps1](unix.ps1)
@@ -15,7 +15,7 @@
 - Useful commands for crypto, including converting between different crypto file types, checking if private keys and certs match, etc. See [openssl.ps1](openssl.ps1)
 - Config files for [Windows Terminal](profiles.json), [Terminus](terminus-settings.yaml), and other modern Windows terminals.
 
-The profile code itself contains useful implementations of common patterns- eg, installing packages, reading the registry, interacting with files and processes. **Learning the things required to make a profile you're happy with is a great way to get comfortable with Powershell.**
+The profile code itself contains useful implementations of common patterns, e.g., installing packages, reading the registry, interacting with files and processes. **Learning the things required to make a profile you're happy with is a great way to get comfortable with Powershell.**
 
 The details below are minimal, but the names of most commands make things fairly obvious.
 
@@ -37,7 +37,7 @@ To allow you to install items without further prompts:
  Set-PSRepository -name PSGallery -InstallationPolicy Trusted
 ```
 
-### For `less`, `Add-PAthVariable` and a bunch of other useful commands that should be there out of the box
+### For `less`, `Add-PathVariable` and a bunch of other useful commands that should be there out of the box
 
 Get the [Powershell Community Extensions](https://github.com/Pscx/Pscx). Run:
 
