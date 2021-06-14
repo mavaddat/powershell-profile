@@ -15,7 +15,11 @@ function open($file) {
 }
 
 function explorer {
-  explorer.exe .
+    if($args.Length -eq 0){
+        explorer.exe .
+    } else {
+        explorer.exe @args
+    }
 }
 
 function Start-Edge {
@@ -64,7 +68,7 @@ $env:DOCUMENTS = [Environment]::GetFolderPath("mydocuments")
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
 
 # Truncate homedir to ~
-function limit-HomeDirectory($Path) {
+function Limit-HomeDirectory($Path) {
   $Path.Replace("$home", "~")
 }
 
@@ -74,7 +78,7 @@ function limit-HomeDirectory($Path) {
 
 # Make $lastObject save the last object output
 # From http://get-powershell.com/post/2008/06/25/Stuffing-the-output-of-the-last-command-into-an-automatic-variable.aspx
-function out-default {
+function Out-Default {
 try{
   $input | Tee-Object -var global:lastobject | Microsoft.PowerShell.Core\out-default
 }
@@ -88,7 +92,7 @@ Catch [System.Management.Automation.RuntimeException]
 # Import-Module posh-git
 # Import-Module oh-my-posh
 
-function rename-extension($newExtension){
+function Rename-Extension($newExtension){
   Rename-Item -NewName { [System.IO.Path]::ChangeExtension($_.Name, $newExtension) }
 }
 function Get-ShortName 

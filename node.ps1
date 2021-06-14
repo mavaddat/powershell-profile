@@ -31,7 +31,7 @@ $currNodeVerStr = $currNodeVerJob | Receive-Job -Wait -AutoRemoveJob
 $currNodeVer = New-Object -TypeName version
 
 if (-not [version]::TryParse($currNodeVerStr, [ref]$currNodeVer)) {
-	Write-Host "Unable to parse {$currNodeVerStr} as a nodeJS version."
+	Write-Host "Unable to parse '{$currNodeVerStr}' as a nodeJS version."
 	exit
 }
 

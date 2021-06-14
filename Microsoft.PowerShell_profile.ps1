@@ -43,11 +43,11 @@ function Test-Administrator {
 }
 
 # Edit whole dir, so we can edit included files etc
-function Edit-Powershell-Profile {
+function Edit-PowershellProfile {
 	edit $profileDir
 }
 
-function Update-Powershell-Profile {
+function Update-PowershellProfile {
 	& $profile
 }
 
@@ -57,7 +57,7 @@ function Set-Title([string]$newtitle) {
 }
 
 # From http://stackoverflow.com/questions/7330187/how-to-find-the-windows-version-from-the-powershell-command-line
-function Get-Windows-Build {
+function Get-WindowsBuild {
 	[Environment]::OSVersion
 }
 
@@ -68,7 +68,7 @@ function Get-WifiPassword {
 	$( &netsh.exe @("wlan", "show", "profile", "$ssid", "key=clear") | Select-String -Pattern ".*?key content\s+:\s*(.*)$").Matches.Groups[1].Value | Set-Clipboard
 }
 
-<# function Disable-Windows-Search {
+<# function Disable-WindowsSearch {
 	Set-Service wsearch -StartupType disabled
 	stop-Service wsearch
 } #>
@@ -119,7 +119,7 @@ function Test-FileInSubPath([System.IO.DirectoryInfo]$Child, [System.IO.Director
 	& $SourceTreeFolder/SourceTree.exe -f .
 } #>
 
-<# function Get-Serial-Number {
+<# function Get-SerialNumber {
   Get-CimInstance -ClassName Win32_Bios | Select-Object serialnumber
 } #>
 
@@ -210,7 +210,7 @@ function Get-Properties($Object, $MaxLevels="5", $PathName = "`$_", $Level=0)
     $props
 }
 
-function Get-Process-For-Port($port) {
+function Get-ProcessForPort($port) {
 	Get-Process -Id (Get-NetTCPConnection -LocalPort $port).OwningProcess
 }
 

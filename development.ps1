@@ -33,11 +33,11 @@ function gg {
 	& git grep -n -i @args | foreach-object { $_ -replace '(\d+):','$1 ' }  
 }
 
-function Get-Git-Ignored {
+function Get-GitIgnored {
 	git ls-files . --ignored --exclude-standard --others
 }
 
-function Get-Git-Untracked {
+function Get-GitUntracked {
 	git ls-files . --exclude-standard --others
 }
 

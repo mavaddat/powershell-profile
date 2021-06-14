@@ -79,7 +79,7 @@ function df {
 # }
 
 # Like a recursive sed
-function edit-recursive($filePattern, $find, $replace) {
+function Edit-Recursive($filePattern, $find, $replace) {
 	$files = get-childitem . "$filePattern" -rec # -Exclude
 	write-output $files
 	foreach ($file in $files) {
@@ -100,7 +100,7 @@ function grepv($regex) {
 	$input | where-object { !$_.Contains($regex) }
 }
 
-function show-links($dir){
+function Show-Links($dir){
 	get-childitem $dir | where-object {$_.LinkType} | select-object FullName,LinkType,Target
 }
 
@@ -177,7 +177,7 @@ function pstree {
 	}
 }
 
-function find-file($name) {
+function Find-File($name) {
 	get-childitem -recurse -filter "*${name}*" -ErrorAction SilentlyContinue | foreach-object {
 		write-output($PSItem.FullName)
 	}
