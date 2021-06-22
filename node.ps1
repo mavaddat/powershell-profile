@@ -2,57 +2,60 @@ $nodePath = Resolve-Path (Join-Path "$("$(nvm root)" -replace ".*([A-Z]:\\)",'$1
 if (Test-Path -Path $nodePath) {
 	Add-PathVariable "$nodePath"
 }
+function Update-NodeJS {
+	$availNodeVers = New-Object -TypeName System.Collections.ArrayList
+	$verPattern = [regex]::new("(?:\d+\.?){3}")
 
-$availNodeVers = New-Object -TypeName System.Collections.ArrayList
-$verPattern = [regex]::new("(?:\d+\.?){3}")
-
-$addVersJob = (Start-ThreadJob -ScriptBlock {
-		param($availNodeVers, $verPattern)
-	 nvm list available  | ForEach-Object { 
-		 (Select-String -InputObject $_ -Pattern $verPattern -AllMatches).Matches | ForEach-Object { 
-			 $ver = New-Object -TypeName version
-			 if ( [version]::TryParse($_.Value, [ref]$ver) ) { 
-				 $availNodeVers.Add($ver) | Out-Null 
+	$addVersJob = (Start-ThreadJob -ScriptBlock {
+			param($availNodeVers, $verPattern)
+			nvm list available  | ForEach-Object { 
+				(Select-String -InputObject $_ -Pattern $verPattern -AllMatches).Matches | ForEach-Object { 
+					$ver = New-Object -TypeName version
+					if ( [version]::TryParse($_.Value, [ref]$ver) ) { 
+						$availNodeVers.Add($ver) | Out-Null 
+					} 
 				} 
+			}
+		} -ArgumentList $availNodeVers, $verPattern)
+
+	$currNodeVerJob = Start-ThreadJob -ScriptBlock { 
+		param($verPattern)
+		(nvm list | Select-String $verPattern).Matches.Value 
+	} -ArgumentList $verPattern
+
+	Wait-Job -Job $addVersJob | Out-Null
+
+	$availNodeVers.Sort() | Out-Null
+
+	$currNodeVerStr = $currNodeVerJob | Receive-Job -Wait -AutoRemoveJob
+	$currNodeVer = New-Object -TypeName version
+
+	if (-not [version]::TryParse($currNodeVerStr, [ref]$currNodeVer)) {
+		Write-Host "Unable to parse '{$currNodeVerStr}' as a nodeJS version."
+		exit
+	}
+
+	$newerAvail = (
+		$availNodeVers | ForEach-Object -Begin { $newerAvail = $false } -Process {
+			if (($newerAvail = $newerAvail -or ($currNodeVer -lt $_) ) ) {
+				return 
 			} 
-		}
-	} -ArgumentList $availNodeVers, $verPattern)
+		} -End { $newerAvail }
+	)
 
-$currNodeVerJob = Start-ThreadJob -ScriptBlock { 
-	param($verPattern)
-	(nvm list | Select-String $verPattern).Matches.Value 
-} -ArgumentList $verPattern
-
-Wait-Job -Job $addVersJob | Out-Null
-
-$availNodeVers.Sort() | Out-Null
-
-$currNodeVerStr = $currNodeVerJob | Receive-Job -Wait -AutoRemoveJob
-$currNodeVer = New-Object -TypeName version
-
-if (-not [version]::TryParse($currNodeVerStr, [ref]$currNodeVer)) {
-	Write-Host "Unable to parse '{$currNodeVerStr}' as a nodeJS version."
-	exit
+	if ($newerAvail) {
+		Write-Host "Installing nodejs..."
+		$installNodeJob = Start-ThreadJob -ScriptBlock {
+			param($latestNodeVer, $currNodeVer)
+			nvm install latest
+			nvm use $latestNodeVer
+			nvm uninstall $currNodeVer
+		} -ArgumentList $availNodeVers[-1], $currNodeVer
+		Receive-Job -Job $installNodeJob -Wait -AutoRemoveJob
+	}
 }
 
-$newerAvail = (
-	$availNodeVers | ForEach-Object -Begin { $newerAvail = $false } -Process {
-	 if (($newerAvail = $newerAvail -or ($currNodeVer -lt $_) ) ){
-			return 
-		} 
-	} -End { $newerAvail }
-)
-
-if ($newerAvail) {
-	Write-Host "Installing nodejs..."
-	$installNodeJob = Start-ThreadJob -ScriptBlock {
-		param($latestNodeVer, $currNodeVer)
-		nvm install latest
-		nvm use $latestNodeVer
-		nvm uninstall $currNodeVer
-	} -ArgumentList $availNodeVers[-1], $currNodeVer
-	Receive-Job -Job $installNodeJob -Wait -AutoRemoveJob
-}
+Update-NodeJS
 
 # yarn bin folder
 if (Test-Path "$nodePath\node_modules\yarn\bin") {
@@ -64,7 +67,7 @@ elseif (Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContin
 		param($nodePath)
 		Start-Process -FilePath "$nodePath\npm.cmd" -ArgumentList @('install', 'yarn', '-g') -Wait -NoNewWindow
 	} -ArgumentList $nodePath  | Out-Null
-	
+
 }
 
 # npm global bin folder
