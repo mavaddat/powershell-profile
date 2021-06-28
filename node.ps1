@@ -1,4 +1,4 @@
-$nodePath = Resolve-Path (Join-Path "$("$(nvm root)" -replace ".*([A-Z]:\\)",'$1')" 'v*[0-9]*')
+$nodePath = Resolve-Path (Join-Path "$("$(nvm root)" -replace ".*([A-Z]:\\)",'$1')" 'v*[0-9]*') | Select-Last -Last 1
 if (Test-Path -Path $nodePath) {
 	Add-PathVariable "$nodePath"
 }
@@ -26,33 +26,34 @@ function Update-NodeJS {
 	Wait-Job -Job $addVersJob | Out-Null
 
 	$availNodeVers.Sort() | Out-Null
+	$newerAvail = $false
 
 	$currNodeVerStr = $currNodeVerJob | Receive-Job -Wait -AutoRemoveJob
-	$currNodeVer = New-Object -TypeName version
-
-	if (-not [version]::TryParse($currNodeVerStr, [ref]$currNodeVer)) {
-		Write-Host "Unable to parse '{$currNodeVerStr}' as a nodeJS version."
-		exit
-	}
-
-	$newerAvail = (
-		$availNodeVers | ForEach-Object -Begin { $newerAvail = $false } -Process {
-			if (($newerAvail = $newerAvail -or ($currNodeVer -lt $_) ) ) {
-				return 
-			} 
-		} -End { $newerAvail }
-	)
-
-	if ($newerAvail) {
-		Write-Host "Installing nodejs..."
-		$installNodeJob = Start-ThreadJob -ScriptBlock {
-			param($latestNodeVer, $currNodeVer)
-			nvm install latest
-			nvm use $latestNodeVer
-			nvm uninstall $currNodeVer
-		} -ArgumentList $availNodeVers[-1], $currNodeVer
-		Receive-Job -Job $installNodeJob -Wait -AutoRemoveJob
-	}
+	$uninstallJobs = New-Object -TypeName System.Collections.ArrayList
+ 	foreach ($nodeVerStr in $currNodeVerStr) {
+		 $currNodeVer = New-Object -TypeName version
+		 
+		 	if (-not [version]::TryParse($nodeVerStr, [ref]$currNodeVer)) {
+		 		throw New-Object -TypeName System.FormatException -ArgumentList @("Unable to parse '{$nodeVerStr}' as a nodeJS version.")
+		 	}
+		 
+			$availNodeVers | ForEach-Object -Process {
+				if (($newerAvail = ($newerAvail -or ($currNodeVer -lt $_) )) ) {
+					$uninstallJobs.Add($(Start-Process -FilePath 'nvm' -ArgumentList @("uninstall $currNodeVer") -NoNewWindow -PassThru)) | Out-Null 
+					return 
+				} 
+			}
+	 }
+			 
+	 if ($newerAvail) {
+		 Write-Host "Installing nodejs..."
+		 $installNodeJob = Start-ThreadJob -ScriptBlock {
+			 param($latestNodeVer)
+			 nvm install latest
+			 nvm use $latestNodeVer
+		 } -ArgumentList $availNodeVers[-1]
+		 Receive-Job -Job $installNodeJob -Wait -AutoRemoveJob
+	 }
 }
 
 Update-NodeJS
@@ -63,11 +64,17 @@ if (Test-Path "$nodePath\node_modules\yarn\bin") {
 }
 elseif (Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContinue) {
 	Write-Host "Installing yarn..."
-	Start-ThreadJob -ScriptBlock {
-		param($nodePath)
-		Start-Process -FilePath "$nodePath\npm.cmd" -ArgumentList @('install', 'yarn', '-g') -Wait -NoNewWindow
-	} -ArgumentList $nodePath  | Out-Null
-
+	$npmOutFile = New-TemporaryFile
+	Start-Process -FilePath "$nodePath\npm.cmd" -ArgumentList @('install', 'yarn', '-g') -Wait -NoNewWindow -PassThru -RedirectStandardOutput $npmOutFile
+	$npmUpdateNotice = Get-Content -Path $npmOutFile | Select-String -Pattern "npm notice Run npm install -g npm@(?<version>$verPattern) to update!"
+	$npmVer = $npmUpdateNotice.Matches.Groups | Where-Object -Property  Name -EQ 'version'
+	if($null -ne $npmVer){
+		$npmVer = $npmVer.Value
+		Write-Host "Updating npm to $npmVer..."
+		Start-Process -FilePath "$nodePath\npm.cmd" -ArgumentList @('install','-g',"npm@$npmVer") -PassThru -NoNewWindow
+	}
+	
+	
 }
 
 # npm global bin folder
