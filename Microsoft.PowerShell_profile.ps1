@@ -1,28 +1,37 @@
 ﻿Function Add-PathVariable {
 	param (
+		[CmdletBinding()]
 		[Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
-		[String]$AddPath,
+		[Object[]]$AddPath,
 		[String[]][AllowNull()]
 		[Parameter(Position = 1, ValueFromRemainingArguments)]
 		$Remaining
 	)
-	if (Test-Path $AddPath) {
-		$regexAddPath = [regex]::Escape($AddPath)
-		$ArrPath = $env:Path -split ';' | Where-Object { $_ -notMatch 
-			"^$regexAddPath\\?" }
-		$env:Path = ($ArrPath + $AddPath) -join ';'
-	}
- else {
-	 	$throwMessage = "'$AddPath' is not a valid path."
-		if($null -ne ($BetterPath = Resolve-Path -Path (Join-Path $AddPath '*' -ErrorAction SilentlyContinue)  -ErrorAction SilentlyContinue) -and (Test-Path -Path $BetterPath)) {
-			Write-Error -Category ObjectNotFound -Message ($throwMessage + "`nDid you mean '$BetterPath'?")
-		} else {
-			Write-Error -Category ObjectNotFound -Message $throwMessage
+	Write-Verbose -Message ([string]::Format("Received {0} path{1} to add",$($AddPath.Count),('s', '')[!$($AddPath.Count -gt 1)]))
+	foreach ($Path in $AddPath) {
+		Write-Verbose -Message ("Attempting to add `"$Path`"")
+		
+		if (Test-Path $Path) {
+			$regexAddPath = [regex]::Escape($Path)
+			$ArrPath = $env:Path -split ';' | Where-Object { $_ -notMatch 
+				"^$regexAddPath\\?" }
+			$env:Path = ($ArrPath + $Path) -join ';'
 		}
+		else {
+	 		$throwMessage = "`"$Path`" is not a valid path"
+			if ($null -ne ($BetterPath = Resolve-Path -Path (Join-Path $Path '*' -ErrorAction SilentlyContinue)  -ErrorAction SilentlyContinue) -and (Test-Path -Path $BetterPath)) {
+				Write-Verbose -Message ("$throwMessage; however, a valid similar path exists")
+				Write-Error -Category ObjectNotFound -Message ($throwMessage + "`nDid you mean `"$BetterPath`"?")
+			}
+			else {
+				Write-Error -Category ObjectNotFound -Message $throwMessage
+			}
+		}
+		
 	}
 	
-	if($null -ne $Remaining){
-		ForEach-Object -InputObject $Remaining -Process {Add-PathVariable($_)}
+	if ($null -ne $Remaining) {
+		ForEach-Object -InputObject $Remaining -Process { Add-PathVariable($_) }
 	}
 }
 
@@ -124,9 +133,8 @@ function Test-FileInSubPath([System.IO.DirectoryInfo]$Child, [System.IO.Director
 } #>
 
 # https://stackoverflow.com/questions/14970079/how-to-recursively-enumerate-through-properties-of-object
-function Get-Properties($Object, $MaxLevels="5", $PathName = "`$_", $Level=0)
-{
-    <#
+function Get-Properties($Object, $MaxLevels = "5", $PathName = "`$_", $Level = 0) {
+	<#
         .SYNOPSIS
         Returns a list of all properties of the input object
 
@@ -157,57 +165,54 @@ function Get-Properties($Object, $MaxLevels="5", $PathName = "`$_", $Level=0)
             http://stackoverflow.com/users/1298933/kevind
      #>
 
-    if ($Level -eq 0) 
-    { 
-        $oldErrorPreference = $ErrorActionPreference
-        $ErrorActionPreference = "SilentlyContinue"
-    }
+	if ($Level -eq 0) { 
+		$oldErrorPreference = $ErrorActionPreference
+		$ErrorActionPreference = "SilentlyContinue"
+	}
 
-    #Initialize an array to store properties
-    $props = @()
+	#Initialize an array to store properties
+	$props = @()
 
-    # Get all properties of this level
-    $rootProps = $Object | Get-Member -ErrorAction SilentlyContinue | Where-Object { $_.MemberType -match "Property"} 
+	# Get all properties of this level
+	$rootProps = $Object | Get-Member -ErrorAction SilentlyContinue | Where-Object { $_.MemberType -match "Property" } 
 
-    # Add all properties from this level to the array.
-    $rootProps | ForEach-Object { $props += "$PathName.$($_.Name)" }
+	# Add all properties from this level to the array.
+	$rootProps | ForEach-Object { $props += "$PathName.$($_.Name)" }
 
-    # Make sure we're not exceeding the MaxLevels
-    if ($Level -lt $MaxLevels)
-    {
+	# Make sure we're not exceeding the MaxLevels
+	if ($Level -lt $MaxLevels) {
 
-        # We don't care about the sub-properties of the following types:
-        $typesToExclude = "System.Boolean", "System.String", "System.Int32", "System.Char"
+		# We don't care about the sub-properties of the following types:
+		$typesToExclude = "System.Boolean", "System.String", "System.Int32", "System.Char"
 
-        #Loop through the root properties
-        $props += $rootProps | ForEach-Object {
+		#Loop through the root properties
+		$props += $rootProps | ForEach-Object {
 
-                    #Base name of property
-                    $propName = $_.Name;
+			#Base name of property
+			$propName = $_.Name;
 
-                    #Object to process
-                    $obj = $($Object.$propName)
+			#Object to process
+			$obj = $($Object.$propName)
 
-                    # Get the type, and only recurse into it if it is not one of our excluded types
-                    $type = ($obj.GetType()).ToString()
+			# Get the type, and only recurse into it if it is not one of our excluded types
+			$type = ($obj.GetType()).ToString()
 
-                    # Only recurse if it's not of a type in our list
-                    if (!($typesToExclude.Contains($type)))
-                    {
+			# Only recurse if it's not of a type in our list
+			if (!($typesToExclude.Contains($type))) {
 
-                        #Path to property
-                        $childPathName = "$PathName.$propName"
+				#Path to property
+				$childPathName = "$PathName.$propName"
 
-                        # Make sure it's not null, then recurse, incrementing $Level                        
-                        if ($null -ne $obj)
-                        {
-                            Get-Properties -Object $obj -PathName $childPathName -Level ($Level + 1) -MaxLevels $MaxLevels }
-                        }
-                    }
-    }
+				# Make sure it's not null, then recurse, incrementing $Level                        
+				if ($null -ne $obj) {
+					Get-Properties -Object $obj -PathName $childPathName -Level ($Level + 1) -MaxLevels $MaxLevels 
+				}
+			}
+		}
+	}
 
-    if ($Level -eq 0) {$ErrorActionPreference = $oldErrorPreference}
-    $props
+	if ($Level -eq 0) { $ErrorActionPreference = $oldErrorPreference }
+	$props
 }
 
 function Get-ProcessForPort($port) {

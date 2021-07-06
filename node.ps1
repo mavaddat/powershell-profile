@@ -1,7 +1,3 @@
-$nodePath = Resolve-Path (Join-Path "$("$(nvm root)" -replace ".*([A-Z]:\\)",'$1')" 'v*[0-9]*') | Select-Last -Last 1
-if (Test-Path -Path $nodePath) {
-	Add-PathVariable "$nodePath"
-}
 function Update-NodeJS {
 	$availNodeVers = New-Object -TypeName System.Collections.ArrayList
 	$verPattern = [regex]::new("(?:\d+\.?){3}")
@@ -58,9 +54,14 @@ function Update-NodeJS {
 
 Update-NodeJS
 
+$nodePath = Resolve-Path (Join-Path "$("$(nvm root)" -replace ".*([A-Z]:\\)",'$1')" 'v*[0-9]*') | Select-Last -Last 1
+if (Test-Path -Path $nodePath) {
+	Add-PathVariable "$nodePath" -Verbose
+}
+
 # yarn bin folder
 if (Test-Path "$nodePath\node_modules\yarn\bin") {
-	Add-PathVariable "$nodePath\node_modules\yarn\bin"
+	Add-PathVariable "$nodePath\node_modules\yarn\bin"  -Verbose
 }
 elseif (Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContinue) {
 	Write-Host "Installing yarn..."
@@ -78,7 +79,7 @@ elseif (Get-Command nvm.exe -CommandType Application -ErrorAction SilentlyContin
 }
 
 # npm global bin folder
-Add-PathVariable "$nodePath\node_modules\npm\bin"
+Add-PathVariable "$nodePath\node_modules\npm\bin"  -Verbose
 
 # Python is used to install binary node modules
 # Add-PathVariable $HOME\.windows-build-tools\python27
